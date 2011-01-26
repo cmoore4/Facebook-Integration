@@ -1,0 +1,101 @@
+<!doctype html>
+
+<!-- You need to have both the fb and og XML Namespaces declared to get the meta tags to work. -->
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:og="http://opengraphprotocol.org/schema/">
+	<head>
+		<title>This is a bad title</title>
+
+		<!-- These are unique to your app. -->
+		<meta property="fb:app_id" content="156368734415802" />
+		<meta property="fb:admins" content="2805413" />
+
+		<!-- These are unique to this page. -->
+		<meta property="og:title" content="Facebook Test" /> <!-- Replaces default page title. -->
+		<meta property="og:site_name" content="My Site.com" /> <!-- Replaces default Site Name -->
+		<meta property="og:description" content="A Snowboard page, totally." />
+		<!-- Several more descriptors are available, see Open Graph protocol. -->
+
+
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.8/jquery-ui.js"></script>
+
+		<script>
+		/**
+		 * This function will fire when someone Likes our pages. 
+		 * It simply shows an alert.
+		 */
+
+		var facebook = {};
+		facebook.user_name = '';
+		facebook.user_email = '';
+
+		function doOurLikeButtonClickEvent(){
+			FB.api(
+				'/me', 
+				function(response) {
+					facebook.user_name = response.name;
+					facebook.user_email = response.email;
+				}		  
+			);
+
+			alert(facebook.user_name + ': ' + facebook.user_email);
+			// Send it to our database for logging
+			/*
+			$.getJSON(
+				'http://example.com/like_logger.php', // or whatever the server script is
+				{
+					item_num: '55555',
+					user: user_name,
+					email: user_email,
+					callback: 'null' // required for XSS
+				}
+			);
+			*/
+		}
+		</script>
+	</head>
+
+	<body>
+		<!-- This will show up as the facebook login button.  It also explicity asks
+			 for permission to get the user's contact email.  It can be heavily customized. -->
+		<fb:login-button autologoutlink="true" perms="email"></fb:login-button><br/>
+
+		<!-- This will show up as the like button.  It can be heavily customized. -->
+		<fb:like></fb:like>
+
+		<div id="fb-root"></div>
+		<script>
+		window.fbAsyncInit = function() {
+
+				// Make sure to replace this with your actual app id
+				FB.init(
+						{
+							appId: '156368734415802', 
+							status: true, 
+							cookie: true, 
+							xfbml: true
+						}
+				);
+
+				// This monitors for the Like event.  Note, it does not catch unlikes.
+				FB.Event.subscribe(
+						'edge.create', 
+						function(href, widget) {
+							doOurLikeButtonClickEvent();
+						}
+				);
+			};
+
+		// This grabs the Facebook js script for either http or https from facebook.
+		(function() {
+			var e = document.createElement('script');
+			e.type = 'text/javascript';
+			e.src = document.location.protocol + '//connect.facebook.net/en_US/all.js';
+			e.async = true;
+			document.getElementById('fb-root').appendChild(e);
+			}()
+		);
+		</script>
+	</body>
+</html>
+
